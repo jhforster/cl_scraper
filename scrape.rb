@@ -30,17 +30,20 @@ scraper.get(ADDRESS) do |search_page|
   # Submits form and stores results
   results_page = form.submit
 
-  # Creates an array for all the p tags with class result-info
-  raw_results = results_page.search('p.result-info')
+  # Creates an array for all the elements with class result-info (only p-tags)
+  raw_results = results_page.bases_with(class: 'result-info')
 
   # Parse each p tag for name and url
   raw_results.each do |result|
     # Finds the first a tag within the p tag
-    link = result.css('a')[0]
+    link = result.links[0]
     # Extracts the display text from the a tag
-    name = link.text.strip.to_s
+    name = link.text
     # Concatenates to provide the full url address
-    url = BASE_URL + link.attributes["href"].value
+    url = BASE_URL + link.uri
+
+    # Click the link and go to a new page
+    new_page = link.click
 
     # Checks to make sure the name has not already been stored to remove duplicate listings
     if !(name_dupe.include? name)
